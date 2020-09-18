@@ -8,4 +8,7 @@ export class UserInput{
     
     @Field()
     password:string;
+
+    // @Field()
+    // data:Datatype
 }

@@ -13,7 +13,5 @@ export class UserType{
     @Field()
     password:string;
 
-    @Field()
-    telephoneNumber:string
 
 }
