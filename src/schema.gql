@@ -1,0 +1,37 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type UserType {
+  _id: ID!
+  name: String!
+  password: String!
+}
+
+type DataType {
+  _id: String!
+  telephoneNumber: String!
+  email: String!
+}
+
+type Query {
+  signIn(userData: UserInput!): String!
+  getAllUsers: [UserType!]!
+  getData(data: String!): DataType!
+}
+
+input UserInput {
+  name: String!
+  password: String!
+}
+
+type Mutation {
+  signUp(userData: UserInput!): Boolean!
+  DeleteUser(userName: String!): Boolean!
+  UpdateUser(dataForUpdate: UpdateData!): Boolean!
+}
+
+input UpdateData {
+  newTelephoneNumber: String!
+  newEmail: String!
+}
