@@ -1,15 +1,19 @@
 import {UserService} from '../userservice';
-//import { User } from '../../schemas/user.schema';
-//import { Model } from 'mongoose';
+import { User } from '../../schemas/user.schema';
+import { Model } from 'mongoose';
 import { Test } from '@nestjs/testing';
 import { UserInput } from '../inputs/Userinput';
+import { getModelToken } from '@nestjs/mongoose';
 describe('UserService', () => { 
-
+   
     let userService:UserService;
+
+    const emptyUser=false
     
-
-
-    const nonValidUser=null
+    const nonValidUser={
+        name:'',
+        password:'12414412'
+    }
     
     const validUser={
         name:'qwer',
@@ -28,60 +32,59 @@ describe('UserService', () => {
       password:'32974732'
     }
 
-    class mockUserService{
-        signUp(createUserDto: UserInput):boolean{
-            if((!createUserDto || !createUserDto.name || !createUserDto.password) || createUserDto.name===ReturnUser.name){
-                return false
+    
+
+    class mockModel {
+            constructor(public data?: any) {} 
+            save() {
+                return this.data;
+            }  
+            static findOne() {
+                return ;
             }
-            else return true
-        }  
+        }   
+    describe('signUp', () => {  
+        beforeEach(async() => { 
+                const moduleRef=await Test.createTestingModule({
+                    providers:[
+                        UserService,
+                        {
+                            provide:getModelToken(User.name),
+                            useValue:mockModel,
+                        }
+                    ]
+                }).compile()
+                userService=moduleRef.get<UserService>(UserService)
+            });
+
+        describe('sign up if user is not exist',()=>{
+            jest.spyOn(mockModel, 'findOne').mockImplementation(() => emptyUser);
+            it('should create a user if you send valid data',async() => {
+                const response = await userService.signUp(validUser)
+                expect(response).toBeTruthy()
+            });
+        })
+
+        describe('sign up if user exist',()=>{
+            jest.spyOn(mockModel, 'findOne').mockImplementation(() => sameUser);
+            it('shouldnt create the same user',async() => {
+                const response = await userService.signUp(sameUser)
+                expect(response).toBeFalsy()
+            });
+        })  
         
-        signIn(createUserDto: UserInput):string{
-            if((!createUserDto || !createUserDto.name || !createUserDto.password)||(createUserDto.name!==ReturnUser.name || createUserDto.password!==ReturnUser.password)){
-                return null
-            }
-            let token='21`142112`3'
-            return token
-        }
-    }
-    
-    beforeEach(async() => {
-        const moduleRef=await Test.createTestingModule({
-            providers:[
-                {
-                    provide:UserService,
-                    useClass:mockUserService
-                }
-            ]
-        }).compile()
-        userService=moduleRef.get<UserService>(UserService)
-    });
-    
-    describe('signUp', () => {
-        it('should create a user if you send valid data',async() => {
-            const response = await userService.signUp(validUser)
-            expect(response).toBeTruthy()
-        });
-        it('shouldnt create the same user',async() => {
-            const response = await userService.signUp(sameUser)
-            expect(response).toBeFalsy()
-        });
-        it('shouldnt create a user if you send nonvalid data',async() => {
-            const response = await userService.signUp(nonValidUser)
-            expect(response).toBeFalsy()
-        });
     });
 
-    describe('signIn',()=>{
-        it('should return token if login is succes',async()=>{
-            const response = await userService.signIn(sameUser)
-            expect(response).not.toBeNull()
-        })
-        it('should return an error if some parametrs are wrong',async()=>{
-            const response = await userService.signIn(nonValidUser)
-            const response1 = await userService.signIn(validUser)
-            expect(response).toBeNull()
-            expect(response1).toBeNull()
-        })  
-    })
+    // describe('signIn',()=>{
+    //     it('should return token if login is succes',async()=>{
+    //         const response = await userService.signIn(sameUser)
+    //         expect(response).not.toBeNull()
+    //     })
+    //     it('should return an error if some parametrs are wrong',async()=>{
+    //         const response = await userService.signIn(nonValidUser)
+    //         const response1 = await userService.signIn(validUser)
+    //         expect(response).toBeNull()
+    //         expect(response1).toBeNull()
+    //     })  
+    // })
 });
