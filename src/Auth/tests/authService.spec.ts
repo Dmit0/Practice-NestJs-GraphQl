@@ -19,6 +19,15 @@ describe('UserService', () => {
         name:'qwerty',
         password:'32974732'
     }
+    const updateUser={
+        name:'qwer',
+        newName:'123',
+        newPassword:'98213'
+    }
+    const validUsers=[
+        {name:'qwer',newName:'123',newPassword:'98213'},
+        {name:'qwer1',newName:'123',newPassword:'98213'}
+    ]
 
     
     const ReturnUser={
@@ -39,6 +48,9 @@ describe('UserService', () => {
                 return
             }
             static findOneAndUpdate(){
+                return
+            }
+            static find(){
                 return
             }
         } 
@@ -86,5 +98,43 @@ describe('UserService', () => {
             expect(response1).toBeNull()
         })  
     })
+
+    describe('delete',()=>{
+        it('should delete if this uoser exist and ',async()=>{
+            jest.spyOn(mockModel, 'findOneAndDelete').mockImplementation(() => sameUser);
+            const response = await userService.deleteUser(sameUser.name)
+            expect(response).toBeTruthy()
+        })
+        it('should return an error if no such user or it wasnt deleted',async()=>{
+            jest.spyOn(mockModel, 'findOneAndDelete').mockImplementation(() => emptyUser);
+            const response1 = await userService.signIn(validUser)
+            expect(response1).not.toBeTruthy()
+        })   
+    })
+    describe('updateUser',()=>{
+        it('should delete if this user exist and ',async()=>{
+            jest.spyOn(mockModel, 'findOneAndDelete').mockImplementation(() => validUser);
+            const response = await userService.updateUser(updateUser)
+            expect(response).toBeTruthy()
+        })
+
+        //тест на пустые поля (не обработается graphQl)
+
+
+        it('should return an error if no such user or it wasnt deleted',async()=>{
+            jest.spyOn(mockModel, 'findOneAndDelete').mockImplementation(() => emptyUser);
+            const response1 = await userService.updateUser(updateUser)
+            expect(response1).not.toBeTruthy()
+        })   
+    })
+
+    describe('findall',()=>{
+        it('should return all users ',async()=>{
+            jest.spyOn(mockModel, 'find').mockImplementation(() => validUsers);
+            const response = await userService.findAll()
+            expect(response).toBeDefined()
+        })  
+    })
+
     
 });
